@@ -1,0 +1,4 @@
+TARGETNAME=Device_SymbolicLink_Demo
+TARGETTYPE=DRIVER
+TARGETPATH=Driver
+SOURCES=Device_SymbolicLink.c
