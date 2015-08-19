@@ -1,0 +1,36 @@
+﻿Mistakes I have committed:
+
+KdPrint need two pairs of parenthesis, but I don't.
+1>systhread.c(60) : error C1057: unexpected end of file in macro expansion
+100>systhread.c(60) : error C1057: unexpected end of file in macro expansion
+
+////  The compiler donesn't identify Chinese character  such as comma and dot as key character.
+1>systhread.c(27) : error C2065: 'KernelMode，0，' : undeclared identifier
+1>systhread.c(27) : error C2088: '&' : illegal for union
+1>systhread.c(27) : error C2198: 'KeDelayExecutionThread' : too few arguments for call through pointer-to-function
+100>systhread.c(27) : error C2065: 'KernelMode，0，' : undeclared identifier
+100>systhread.c(27) : error C2088: '&' : illegal for union
+100>systhread.c(27) : error C2198: 'KeDelayExecutionThread' : too few arguments for call through pointer-to-function
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+When it comes to initialize the event, it ought to be set to FALSE,
+    OR the driver will exit directly without any delay, regardless of if its child thread has done its work.
+KeInitializeEvent( &s_event, SynchronizationEvent, FALSE);
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+I don't know why the me-defined function named "MySleep" is not work,
+      and don't know why it triggeres an BSOD(Blue Screen Of Death) after frequently start/stop the Service
+
+My codes firstly runs
+	KeSetEvent( &s_event, 0, TRUE );
+
+Then delays, which leads to Main Thread's being terminated,
+then display "KeDelayExecutionThread"
+Maybe memory addressing out of range, the bugs exists in the multithreading synchronization.
