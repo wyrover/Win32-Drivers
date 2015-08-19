@@ -1,0 +1,579 @@
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+;;
+;;                     Tree View Control Macros
+;;
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+;;
+;;      TreeView.mac for 32 bit MASM v1.3 (April 2003)
+;;
+;;      This file contains the macros, equates and  structures
+;;      to make it easier to send messages to Tree View control
+;;
+;;      This include file is written and maintained by Four-F (four-f@mail.ru)
+;;
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+;;   NOTE : windows.inc and cocomac.mac MUST be included before
+;;   as TreeView.mac require some difinitions from it.
+
+IFNDEF UNICODE
+	UNICODE = 0
+ENDIF
+
+TV_ITEM equ <TVITEMA>
+
+IFNDEF TVNRET_DEFAULT
+	TVNRET_DEFAULT			equ 0
+	TVNRET_SKIPOLD			equ 1
+	TVNRET_SKIPNEW			equ 2
+ENDIF
+
+IFNDEF TVS_RTLREADING
+	TVS_RTLREADING 			equ 0040h
+	TVS_NOTOOLTIPS			equ 0080h
+	TVS_CHECKBOXES			equ 0100h
+	TVS_TRACKSELECT			equ 0200h
+ENDIF
+
+IFNDEF TVS_SINGLEEXPAND
+	TVS_SINGLEEXPAND		equ 0400h
+	TVS_INFOTIP				equ 0800h
+	TVS_FULLROWSELECT 		equ 1000h
+	TVS_NOSCROLL			equ 2000h
+	TVS_NONEVENHEIGHT		equ 4000h
+ENDIF
+
+IFNDEF TVS_NOHSCROLL
+	TVS_NOHSCROLL			equ 8000h	;; TVS_NOSCROLL overrides this
+ENDIF
+
+IFNDEF TVIF_INTEGRAL
+	TVIF_INTEGRAL			equ 80h
+ENDIF
+
+IFNDEF TVIS_EXPANDPARTIAL
+	TVIS_EXPANDPARTIAL		equ 80h
+ENDIF
+
+IFNDEF TVGN_LASTVISIBLE
+	TVGN_LASTVISIBLE equ 0Ah
+ENDIF
+
+IFNDEF TVSI_NOSINGLEEXPAND
+	TVSI_NOSINGLEEXPAND equ 8000h ;; Should not conflict with TVGN flags.
+ENDIF
+
+IFNDEF TVE_EXPANDPARTIAL
+	TVE_EXPANDPARTIAL equ 4000h
+ENDIF
+
+TreeView_CreateDragImage MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_CREATEDRAGIMAGE, 0, hitem
+ENDM
+
+TreeView_DeleteAllItems MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_DELETEITEM, 0, TVI_ROOT
+ENDM
+
+TreeView_DeleteItem MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_DELETEITEM, 0, hitem
+ENDM
+
+IF UNICODE
+	TVM_EDITLABEL equ TVM_EDITLABELW
+ENDIF
+
+TreeView_EditLabel MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_EDITLABEL, 0 , hitem
+ENDM
+
+IFNDEF TVM_ENDEDITLABELNOW
+	TVM_ENDEDITLABELNOW equ TV_FIRST + 22
+ENDIF
+
+TreeView_EndEditLabelNow MACRO hwnd:REQ, fCancel:REQ
+	invoke SendMessage, hwnd, TVM_ENDEDITLABELNOW, fCancel, 0
+ENDM
+
+TreeView_EnsureVisible MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_ENSUREVISIBLE, 0, hitem
+ENDM
+
+TreeView_Expand MACRO hwnd:REQ, hitem:REQ, flag:REQ
+	invoke SendMessage, hwnd, TVM_EXPAND, flag, hitem
+ENDM
+
+IFNDEF TVM_GETBKCOLOR
+	TVM_GETBKCOLOR equ TV_FIRST + 31
+ENDIF
+
+TreeView_GetBkColor MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETBKCOLOR, 0, 0
+ENDM
+
+IFNDEF TVM_GETITEMSTATE
+	TVM_GETITEMSTATE equ TV_FIRST + 39
+ENDIF
+
+TreeView_GetCheckState MACRO hwnd:REQ, hItem:REQ
+	invoke SendMessage, hwnd, TVM_GETITEMSTATE, hItem, TVIS_STATEIMAGEMASK
+	shr eax, 12
+	dec eax
+ENDM
+
+TreeView_GetChild MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_CHILD, hitem
+ENDM
+
+TreeView_GetCount MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETCOUNT, 0, 0
+ENDM
+
+TreeView_GetDropHilight MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_DROPHILITE, NULL
+ENDM
+
+TreeView_GetEditControl MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETEDITCONTROL, 0, 0
+ENDM
+
+TreeView_GetFirstVisible MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_FIRSTVISIBLE, NULL
+ENDM
+
+TreeView_GetImageList MACRO hwnd:REQ, iImage:REQ
+	invoke SendMessage, hwnd, TVM_GETIMAGELIST, iImage, 0
+ENDM
+
+TreeView_GetIndent MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETINDENT, 0, 0
+ENDM
+
+IFNDEF TVM_GETINSERTMARKCOLOR
+	TVM_GETINSERTMARKCOLOR equ TV_FIRST + 38
+ENDIF
+
+TreeView_GetInsertMarkColor MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETINSERTMARKCOLOR, 0, 0
+ENDM
+
+TreeView_GetISearchString MACRO hwnd:REQ, lpsz:REQ
+	invoke SendMessage, hwnd, TVM_GETISEARCHSTRING, 0, lpsz
+ENDM
+
+;;IF UNICODE
+;;	TVM_GETITEM EQU TVM_GETITEMW
+;;ENDIF
+
+TreeView_GetItem MACRO hwnd:REQ, pitem:REQ
+	invoke SendMessage, hwnd, TVM_GETITEM, 0, pitem
+ENDM
+
+IFNDEF TVM_GETITEMHEIGHT
+	TVM_GETITEMHEIGHT equ TV_FIRST + 28
+ENDIF
+
+TreeView_GetItemHeight MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETITEMHEIGHT, 0, 0
+ENDM
+
+;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+TreeView_GetItemRect MACRO hwnd:REQ, hitem:REQ, prc:REQ, code:REQ
+
+;;#define TreeView_GetItemRect(hwnd, hitem, prc, code) \
+;;    (*(HTREEITEM *)prc = (hitem), (BOOL)SNDMSG((hwnd), TVM_GETITEMRECT, (WPARAM)(code), (LPARAM)(RECT *)(prc)))
+    
+local p, line
+    IF $IsAddr(prc)
+;;    IF @InStr(1, <prc>, <addr >)
+        p SUBSTR <prc>, 6
+		IF (OPATTR (p)) AND 01000000y					;; Is relative to SS
+			lea eax, p
+			IF (OPATTR (hitem)) AND 00000010y			;; Is a memory variable
+				push hitem
+				pop dword ptr [eax]
+			ELSE
+				mov dword ptr [eax], hitem
+			ENDIF
+			invoke SendMessage, hwnd, TVM_GETITEMRECT, code, eax
+		ELSE
+			IF (OPATTR (hitem)) AND 00000010y			;; Is a memory variable
+				push hitem
+				pop dword ptr p
+			ELSE
+				mov dword ptr p, hitem
+			ENDIF
+			invoke SendMessage, hwnd, TVM_GETITEMRECT, code, offset p
+		ENDIF
+	ELSEIF (OPATTR (prc)) AND 00010000y					;; Is a register value
+		IF (OPATTR (hitem)) AND 00000010y				;; Is a memory variable
+			push hitem
+			pop dword ptr [prc]
+		ELSE
+			mov dword ptr [prc], hitem
+		ENDIF
+		invoke SendMessage, hwnd, TVM_GETITEMRECT, code, prc
+	ELSEIF prc EQ NULL
+		line TEXTEQU %@Line
+		% ECHO @FileCur(line) : TreeView_GetItemRect macro ERROR! Pointer to RECT is NULL.
+		.ERR
+	ELSE
+		line TEXTEQU %@Line
+		% ECHO @FileCur(line) : TreeView_GetItemRect macro ERROR! Can't recognize type of &prc. Should be pointer to RECT.;;'
+		.ERR
+	ENDIF
+ENDM
+
+;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+TreeView_GetItemState MACRO hwnd:REQ, hitem:REQ, stateMask:REQ
+	invoke SendMessage, hwnd, TVM_GETITEMSTATE, hitem, stateMask
+ENDM
+
+TreeView_GetLastVisible MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_LASTVISIBLE, NULL
+ENDM
+
+IFNDEF TVM_GETLINECOLOR
+	TVM_GETLINECOLOR EQU TV_FIRST + 41
+ENDIF
+
+TreeView_GetLineColor MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETLINECOLOR, 0, 0
+ENDM
+    
+TreeView_GetNextItem MACRO hwnd:REQ, hitem:REQ, flag:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, flag, hitem
+ENDM
+
+TreeView_GetNextSibling MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_NEXT, hitem
+ENDM
+
+TreeView_GetNextVisible MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_NEXTVISIBLE, hitem
+ENDM
+
+TreeView_GetParent MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_PARENT, hitem
+ENDM
+
+TreeView_GetPrevSibling MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_PREVIOUS, hitem
+ENDM
+
+TreeView_GetPrevVisible MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_PREVIOUSVISIBLE, hitem
+ENDM
+
+TreeView_GetRoot  MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_ROOT, NULL
+ENDM
+
+IFNDEF TVM_GETSCROLLTIME
+	TVM_GETSCROLLTIME equ TV_FIRST + 34
+ENDIF
+
+TreeView_GetScrollTime  MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETSCROLLTIME, 0, 0
+ENDM
+
+TreeView_GetSelection MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETNEXTITEM, TVGN_CARET, NULL
+ENDM
+
+IFNDEF TVM_GETTEXTCOLOR
+	TVM_GETTEXTCOLOR equ TV_FIRST + 32
+ENDIF
+
+TreeView_GetTextColor MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETTEXTCOLOR, 0, 0
+ENDM
+
+IFNDEF TVM_GETTOOLTIPS
+	TVM_GETTOOLTIPS equ TV_FIRST + 25
+ENDIF
+
+TreeView_GetToolTips MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETTOOLTIPS, 0, 0
+ENDM
+
+IFNDEF TVM_GETUNICODEFORMAT
+	TVM_GETUNICODEFORMAT equ CCM_GETUNICODEFORMAT
+ENDIF
+
+TreeView_GetUnicodeFormat MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETUNICODEFORMAT, 0, 0
+ENDM
+
+TreeView_GetVisibleCount MACRO hwnd:REQ
+	invoke SendMessage, hwnd, TVM_GETVISIBLECOUNT, 0, 0
+ENDM
+
+TreeView_HitTest MACRO hwnd:REQ, lpht:REQ
+	invoke SendMessage, hwnd, TVM_HITTEST, 0, lpht
+ENDM
+
+;;IF UNICODE
+;;	TVM_INSERTITEM EQU TVM_INSERTITEMW
+;;ENDIF
+
+TreeView_InsertItem MACRO hwnd:REQ, lpis:REQ
+	invoke SendMessage, hwnd, TVM_INSERTITEM, 0, lpis
+ENDM
+
+IFNDEF TVM_MAPACCIDTOHTREEITEM
+	TVM_MAPACCIDTOHTREEITEM equ TV_FIRST + 42
+ENDIF
+
+TreeView_MapAccIDToHTREEITEM MACRO hwnd:REQ, id:REQ
+	invoke SendMessage, hwnd, TVM_MAPACCIDTOHTREEITEM, id, 0
+ENDM
+
+IFNDEF TVM_MAPHTREEITEMTOACCID
+	TVM_MAPHTREEITEMTOACCID equ TV_FIRST + 43
+ENDIF
+
+TreeView_MapHTREEITEMToAccID MACRO hwnd:REQ, htreeitem:REQ
+	invoke SendMessage, hwnd, TVM_MAPHTREEITEMTOACCID, htreeitem, 0
+ENDM
+    
+TreeView_Select MACRO hwnd:REQ, hitem:REQ, flag:REQ
+	invoke SendMessage, hwnd, TVM_SELECTITEM, flag, hitem
+ENDM
+
+TreeView_SelectDropTarget MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_SELECTITEM, TVGN_DROPHILITE, hitem
+ENDM
+
+TreeView_SelectItem MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_SELECTITEM, TVGN_CARET, hitem
+ENDM
+
+TreeView_SelectSetFirstVisible MACRO hwnd:REQ, hitem:REQ
+	invoke SendMessage, hwnd, TVM_SELECTITEM, TVGN_FIRSTVISIBLE, hitem
+ENDM
+
+IFNDEF TVM_SETBKCOLOR
+	TVM_SETBKCOLOR equ TV_FIRST + 29
+ENDIF
+
+TreeView_SetBkColor MACRO hwnd:REQ, clr:REQ
+	invoke SendMessage, hwnd, TVM_SETBKCOLOR, 0, clr
+ENDM
+
+;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+TreeView_SetItemState MACRO hwnd:REQ, hti:REQ, data:REQ, flags:REQ
+
+;; tvm_setitemstate only uses mask, state and stateMask. so unicode or ansi is irrelevant.
+
+;;#define TreeView_SetItemState(hwndTV, hti, data, _mask) \
+;;{ TVITEM _ms_TVi;\
+;;  _ms_TVi.mask = TVIF_STATE; \
+;;  _ms_TVi.hItem = hti; \
+;;  _ms_TVi.stateMask = _mask;\
+;;  _ms_TVi.state = data;\
+;;  SNDMSG((hwndTV), TVM_SETITEM, 0, (LPARAM)(TV_ITEM *)&_ms_TVi);\
+;;}
+  
+	sub esp, sizeof TV_ITEM
+
+	mov (TV_ITEM PTR [esp])._mask, TVIF_STATE
+
+	IF (OPATTR (hti)) AND 00000010y					;; Is a memory variable
+		push hti
+		pop (TV_ITEM PTR [esp]).hItem
+	ELSE
+		mov (TV_ITEM PTR [esp]).hItem, hti
+	ENDIF
+
+	IF (OPATTR (data)) AND 00000010y				;; Is a memory variable
+		push data
+		pop (TV_ITEM PTR [esp]).state
+	ELSE
+		mov (TV_ITEM PTR [esp]).state, data
+	ENDIF
+
+	IF (OPATTR (flags)) AND 00000010y				;; Is a memory variable
+		push flags
+		pop (TV_ITEM PTR [esp]).stateMask
+	ELSE
+		mov (TV_ITEM PTR [esp]).stateMask, flags
+	ENDIF
+
+	invoke SendMessage, hwnd, TVM_SETITEM, 0, esp
+	add esp, sizeof TV_ITEM
+ENDM
+;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+TreeView_SetCheckState MACRO hwnd:REQ, hitem:REQ, fCheck:REQ
+local line, reax, err
+	reax = 0
+	err = 0
+
+	IF (OPATTR (fCheck)) AND 00000100y				;; Is an immediate value
+		IF fCheck
+			TreeView_SetItemState hwnd, hitem, $INDEXTOSTATEIMAGEMASK(2), TVIS_STATEIMAGEMASK
+		ELSE
+			TreeView_SetItemState hwnd, hitem, $INDEXTOSTATEIMAGEMASK(1), TVIS_STATEIMAGEMASK
+		ENDIF
+	ELSE
+		IF (OPATTR (fCheck)) AND 00010000y		;; Is a register value
+			IFDIFI <fCheck>, <eax>					;; not eax
+				xor eax, eax
+				cmp fCheck, 0
+				setnz al
+			ENDIF
+		ELSE
+			xor eax, eax
+			cmp fCheck, 0
+			setnz al
+		ENDIF
+		inc eax
+		shl eax, 12
+		reax = 1
+
+		IF reax
+			IFIDNI <hwnd>, <eax>
+				err = 1
+			ENDIF
+			IFIDNI <hitem>, <eax>
+				err = 1
+			ENDIF
+			IF err
+				line TEXTEQU %@Line
+				% ECHO @FileCur(line) : ERROR! Register value overwritten by TreeView_SetCheckState macro.
+				.ERR
+			ENDIF		
+		ENDIF
+		TreeView_SetItemState hwnd, hitem, eax, TVIS_STATEIMAGEMASK
+	ENDIF
+ENDM
+
+TreeView_SetImageList MACRO hwnd:REQ, himl:REQ, iImage:REQ
+	invoke SendMessage, hwnd, TVM_SETIMAGELIST, iImage, himl
+ENDM
+
+TreeView_SetIndent MACRO hwnd:REQ, indent:REQ
+	invoke SendMessage, hwnd, TVM_SETINDENT, indent, 0
+ENDM
+
+IFNDEF TVM_SETINSERTMARK
+	TVM_SETINSERTMARK EQU TV_FIRST + 26
+ENDIF
+
+TreeView_SetInsertMark MACRO hwnd:REQ, hitem:REQ, fAfter:REQ
+	invoke SendMessage, hwnd, TVM_SETINSERTMARK, fAfter, hitem
+ENDM
+
+IFNDEF TVM_SETINSERTMARKCOLOR
+	TVM_SETINSERTMARKCOLOR equ TV_FIRST + 37
+ENDIF
+
+TreeView_SetInsertMarkColor MACRO hwnd:REQ, clr:REQ
+	invoke SendMessage, hwnd, TVM_SETINSERTMARKCOLOR, 0, clr
+ENDM
+
+;;IF UNICODE
+;;	TVM_SETITEM EQU TVM_SETITEMW
+;;ENDIF
+
+TreeView_SetItem MACRO hwnd:REQ, pitem:REQ
+	invoke SendMessage, hwnd, TVM_SETITEM, 0, pitem
+ENDM
+
+IFNDEF TVM_SETITEMHEIGHT
+	TVM_SETITEMHEIGHT equ TV_FIRST + 27
+ENDIF
+
+TreeView_SetItemHeight MACRO hwnd:REQ, iHeight:REQ
+	invoke SendMessage, hwnd, TVM_SETITEMHEIGHT, iHeight, 0
+ENDM
+
+IFNDEF TVM_SETLINECOLOR
+	TVM_SETLINECOLOR equ TV_FIRST + 40
+ENDIF
+
+TreeView_SetLineColor MACRO hwnd:REQ, clr:REQ
+	invoke SendMessage, hwnd, TVM_SETLINECOLOR, 0, clr
+ENDM
+   
+IFNDEF TVM_SETSCROLLTIME
+	TVM_SETSCROLLTIME equ TV_FIRST + 33
+ENDIF
+
+TreeView_SetScrollTime MACRO hwnd:REQ, uTime:REQ
+	invoke SendMessage, hwnd, TVM_SETSCROLLTIME, uTime, 0
+ENDM
+
+IFNDEF TVM_SETTEXTCOLOR
+	TVM_SETTEXTCOLOR equ TV_FIRST + 30
+ENDIF
+
+TreeView_SetTextColor MACRO hwnd:REQ, clr:REQ
+	invoke SendMessage, hwnd, TVM_SETTEXTCOLOR, 0, clr
+ENDM
+
+IFNDEF TVM_SETTOOLTIPS
+	TVM_SETTOOLTIPS equ TV_FIRST + 24
+ENDIF
+
+TreeView_SetToolTips MACRO hwnd:REQ, hwndTT:REQ
+	invoke SendMessage, hwnd, TVM_SETTOOLTIPS, hwndTT, 0
+ENDM
+
+IFNDEF TVM_SETUNICODEFORMAT
+	TVM_SETUNICODEFORMAT equ CCM_SETUNICODEFORMAT
+ENDIF
+
+TreeView_SetUnicodeFormat MACRO hwnd:REQ, fUnicode:REQ
+	invoke SendMessage, hwnd, TVM_SETUNICODEFORMAT, fUnicode, 0
+ENDM
+
+TreeView_SortChildren MACRO hwnd:REQ, hitem:REQ, fRecurse
+	;; fRecurse - Reserved for future use. Must be zero.
+	invoke SendMessage, hwnd, TVM_SORTCHILDREN, fRecurse, hitem
+ENDM
+
+TreeView_SortChildrenCB MACRO hwnd:REQ, psort:REQ, fRecurse
+	;; fRecurse - Reserved for future use. Must be zero.
+	invoke SendMessage, hwnd, TVM_SORTCHILDRENCB, fRecurse, psort
+ENDM
+
+IFNDEF NM_CUSTOMDRAW
+	NM_CUSTOMDRAW equ NM_FIRST - 12
+ENDIF
+
+IFNDEF NM_SETCURSOR
+	NM_SETCURSOR equ NM_FIRST - 17
+ENDIF
+
+IFNDEF TVN_SINGLEEXPAND
+	TVN_SINGLEEXPAND equ TVN_FIRST - 15
+ENDIF
+
+IFNDEF TVN_GETINFOTIP
+	TVN_GETINFOTIPA equ TVN_FIRST - 13
+	TVN_GETINFOTIPW equ TVN_FIRST - 14
+	IF UNICODE
+		TVN_GETINFOTIP equ TVN_GETINFOTIPW
+	ELSE
+		TVN_GETINFOTIP equ TVN_GETINFOTIPA
+	ENDIF
+ENDIF
+
+IFNDEF NMTVGETINFOTIP
+	NMTVGETINFOTIP STRUCT
+		hdr			NMHDR	<>
+		pszText		LPSTR	?
+		cchTextMax	UINT	?
+		hItem		HANDLE	?
+		lParam		LPARAM	?
+	NMTVGETINFOTIP ENDS
+
+	NMTVGETINFOTIPW equ <NMTVGETINFOTIP>
+	NMTVGETINFOTIPA equ <NMTVGETINFOTIP>
+ENDIF
+
+;NMTVCUSTOMDRAW
+;TVINSERTSTRUCT

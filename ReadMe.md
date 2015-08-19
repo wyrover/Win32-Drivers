@@ -8,7 +8,10 @@ Let us look at the reality --  Windows NT-based Operating system.
 
 
 # Folder arrangement
-1. "Review_Ideas"   Some basic ideas to be reviewed
+1. "00000_Manual"  Shows some doc that is helpful to program
+2. "00000_TestBench"  has both C/C++ & Assembly compilation Platform.
+3. "00000_Useful" make it possible to collect some useful codes that could be reusable.
+4. "Review_Ideas"   Some basic ideas to be reviewed
 
 
 

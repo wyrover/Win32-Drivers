@@ -1,0 +1,269 @@
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+;;
+;;                     Header Control Macros
+;;
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+;;
+;;      Header.mac for 32 bit MASM v1.3 (April 2003)
+;;
+;;      This file contains the macros, equates and  structures
+;;      to make it easier to send messages to Header control
+;;
+;;      This include file is written and maintained by Four-F (four-f@mail.ru)
+;;
+;;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+;;   NOTE : windows.inc and cocomac.mac MUST be included before
+;;   as Header.mac require some difinitions from it.
+
+IFNDEF UNICODE
+	UNICODE = 0
+ENDIF
+
+IFNDEF HD_TEXTFILTERA
+	HD_TEXTFILTER STRUCT
+		pszText		LPSTR	?	;; [in] pointer to the buffer containing the filter
+		cchTextMax	DWORD	?	;; [in] max size of buffer/edit control buffer
+	HD_TEXTFILTER ENDS
+
+	HDTEXTFILTER	equ <HD_TEXTFILTER>
+	HD_TEXTFILTERW	equ <HD_TEXTFILTER>
+	HD_TEXTFILTERA	equ <HD_TEXTFILTER>
+ENDIF
+
+IFNDEF NMHDDISPINFO
+	NMHDDISPINFO STRUCT
+		hdr			NMHDR	<>
+		iItem		DWORD	?
+		imask		UINT	?
+		pszText		LPSTR	?
+		cchTextMax	DWORD	?
+		iImage		DWORD	?
+		lParam		DWORD	?
+	NMHDDISPINFO ENDS
+
+	NMHDDISPINFOW	equ <NMHDDISPINFO>
+	NMHDDISPINFOA	equ <NMHDDISPINFO>
+ENDIF
+
+IFNDEF HDS_HOTTRACK
+	HDS_HOTTRACK		equ 4
+ENDIF
+
+IFNDEF HDS_DRAGDROP
+	HDS_DRAGDROP		equ 40h
+	HDS_FULLDRAG		equ 80h
+ENDIF
+
+IFNDEF HDS_FILTERBAR
+	HDS_FILTERBAR		equ 100h
+ENDIF
+
+IFNDEF HDS_FLAT
+	HDS_FLAT 			equ 200h
+ENDIF
+
+IFNDEF HDFT_ISSTRING
+	HDFT_ISSTRING		equ 0 ;; HD_ITEM.pvFilter points to a HD_TEXTFILTER
+	HDFT_ISNUMBER		equ 1 ;; HD_ITEM.pvFilter points to a INT
+	HDFT_HASNOVALUE		equ 8000h ;; clear the filter, by setting this bit
+ENDIF
+
+IFNDEF HDI_FILTER
+	HDI_FILTER			equ 100h
+ENDIF
+
+IFNDEF HDF_SORTUP
+	HDF_SORTUP			equ 400h
+	HDF_SORTDOWN		equ 200h
+ENDIF
+
+IFNDEF HHT_ONFILTER
+	HHT_ONFILTER		equ 10h
+	HHT_ONFILTERBUTTON	equ 20h
+ENDIF
+
+IFNDEF HDN_GETDISPINFO
+	HDN_GETDISPINFOA	equ HDN_FIRST - 9
+	HDN_GETDISPINFOW	equ HDN_FIRST - 29
+	IF UNICODE
+		HDN_GETDISPINFO equ HDN_GETDISPINFOW
+	ELSE	
+		HDN_GETDISPINFO equ HDN_GETDISPINFOA
+	ENDIF
+ENDIF
+
+IFNDEF HDN_BEGINDRAG
+	HDN_BEGINDRAG equ HDN_FIRST - 10
+ENDIF
+
+IFNDEF HDN_ENDDRAG
+	HDN_ENDDRAG equ HDN_FIRST - 11
+ENDIF
+
+IFNDEF HDN_FILTERCHANGE
+	HDN_FILTERCHANGE equ HDN_FIRST - 12
+ENDIF
+
+IFNDEF NMHDFILTERBTNCLICK
+	NMHDFILTERBTNCLICK STRUCT
+		hdr			NMHDR	<>
+		iItem		DWORD	?
+		rc			RECT	<>
+	NMHDFILTERBTNCLICK ENDS
+ENDIF
+
+IFNDEF HDN_FILTERBTNCLICK
+	HDN_FILTERBTNCLICK equ HDN_FIRST - 13
+ENDIF
+
+IFNDEF HDM_CLEARFILTER
+	HDM_CLEARFILTER equ HDM_FIRST + 24
+ENDIF
+
+;; Clear filter takes -1 as a column value to indicate that all the filter should be cleared.
+;; When this happens you will only receive a single filter changed notification.
+
+Header_ClearAllFilters MACRO hwnd:REQ
+	invoke SendMessage, hwnd, HDM_CLEARFILTER, -1, 0
+ENDM
+
+Header_ClearFilter MACRO hwnd:REQ, i:REQ
+	invoke SendMessage, hwnd, HDM_CLEARFILTER, i, 0
+ENDM
+
+IFNDEF HDM_CREATEDRAGIMAGE
+	HDM_CREATEDRAGIMAGE equ HDM_FIRST + 16	;; wparam = which item (by index)
+ENDIF
+
+Header_CreateDragImage MACRO hwnd:REQ, i:REQ
+	invoke SendMessage, hwnd, HDM_CREATEDRAGIMAGE, i, 0
+ENDM
+
+Header_DeleteItem MACRO hwnd:REQ, i:REQ
+	invoke SendMessage, hwnd, HDM_DELETEITEM, i, 0
+ENDM
+
+IFNDEF HDM_EDITFILTER
+	HDM_EDITFILTER equ HDM_FIRST + 23
+ENDIF
+
+Header_EditFilter MACRO hwnd:REQ, i:REQ, fDiscardChanges:REQ
+	invoke SendMessage, hwnd, HDM_EDITFILTER, i, $MAKEDWORD(fDiscardChanges, 0)
+ENDM
+
+IFNDEF HDM_GETBITMAPMARGIN
+	HDM_GETBITMAPMARGIN equ HDM_FIRST + 21
+ENDIF
+
+Header_GetBitmapMargin MACRO hwnd:REQ
+	invoke SendMessage, hwnd, HDM_GETBITMAPMARGIN, 0, 0
+ENDM
+
+Header_GetImageList MACRO hwnd:REQ
+	invoke SendMessage, hwnd, HDM_GETIMAGELIST, 0, 0
+ENDM
+
+Header_GetItem MACRO hwnd:REQ, i:REQ, phdi:REQ
+	invoke SendMessage, hwnd, HDM_GETITEM, i, phdi
+ENDM
+
+Header_GetItemCount MACRO hwnd:REQ
+	invoke SendMessage, hwnd, HDM_GETITEMCOUNT, 0, 0
+ENDM
+
+IFNDEF HDM_GETITEMRECT
+	HDM_GETITEMRECT equ HDM_FIRST + 7
+ENDIF
+
+Header_GetItemRect MACRO hwnd:REQ, i:REQ, lprc:REQ
+	invoke SendMessage, hwnd, HDM_GETITEMRECT, i, lprc
+ENDM
+
+IFNDEF HDM_GETORDERARRAY
+	HDM_GETORDERARRAY equ HDM_FIRST + 17
+ENDIF
+
+Header_GetOrderArray MACRO hwnd:REQ, iCount:REQ, lpiArray:REQ
+	invoke SendMessage, hwnd, HDM_GETORDERARRAY, iCount, lpiArray
+ENDM
+
+IFNDEF HDM_GETUNICODEFORMAT
+	HDM_GETUNICODEFORMAT equ CCM_GETUNICODEFORMAT
+ENDIF
+
+Header_GetUnicodeFormat MACRO hwnd:REQ
+	invoke SendMessage, hwnd, HDM_GETUNICODEFORMAT, 0, 0
+ENDM
+
+;;IF UNICODE
+;;	HDM_INSERTITEM equ HDM_INSERTITEMW
+;;ENDIF
+
+Header_InsertItem MACRO hwnd:REQ, i:REQ, phdi:REQ
+	invoke SendMessage, hwnd, HDM_INSERTITEM, i, phdi
+ENDM
+
+Header_Layout MACRO hwnd:REQ, playout:REQ
+	invoke SendMessage, hwnd, HDM_LAYOUT, 0, playout
+ENDM
+
+IFNDEF HDM_ORDERTOINDEX
+	HDM_ORDERTOINDEX equ HDM_FIRST + 15
+ENDIF
+
+Header_OrderToIndex MACRO hwnd:REQ, i:REQ
+	invoke SendMessage, hwnd, HDM_ORDERTOINDEX, i, 0
+ENDM
+
+IFNDEF HDM_SETBITMAPMARGIN
+	HDM_SETBITMAPMARGIN equ HDM_FIRST + 20
+ENDIF
+
+Header_SetBitmapMargin MACRO hwnd:REQ, iWidth:REQ
+	invoke SendMessage, hwnd, HDM_SETBITMAPMARGIN, iWidth, 0
+ENDM
+
+IFNDEF HDM_SETFILTERCHANGETIMEOUT
+	HDM_SETFILTERCHANGETIMEOUT equ HDM_FIRST + 22
+ENDIF
+
+Header_SetFilterChangeTimeout MACRO hwnd:REQ, i:REQ
+	invoke SendMessage, hwnd, HDM_SETFILTERCHANGETIMEOUT, 0, i
+ENDM
+
+IFNDEF HDM_SETHOTDIVIDER
+	HDM_SETHOTDIVIDER equ HDM_FIRST + 19
+ENDIF
+
+Header_SetHotDivider MACRO hwnd:REQ, flag:REQ, dwInputValue:REQ
+	invoke SendMessage, hwnd, HDM_SETHOTDIVIDER, flag, dwInputValue
+ENDM
+
+Header_SetImageList MACRO hwnd:REQ, himl:REQ
+	invoke SendMessage, hwnd, HDM_SETIMAGELIST, 0, himl
+ENDM
+
+;;IF UNICODE
+;;	HDM_SETITEM equ HDM_SETITEMW
+;;ENDIF
+
+Header_SetItem MACRO hwnd:REQ, i:REQ, phdi:REQ
+	invoke SendMessage, hwnd, HDM_SETITEM, i, phdi
+ENDM
+
+IFNDEF HDM_SETORDERARRAY
+	HDM_SETORDERARRAY equ HDM_FIRST + 18
+ENDIF
+
+Header_SetOrderArray MACRO hwnd:REQ, iCount:REQ, lpiArray:REQ
+	invoke SendMessage, hwnd, HDM_SETORDERARRAY, iCount, lpiArray
+ENDM
+
+IFNDEF HDM_SETUNICODEFORMAT
+	HDM_SETUNICODEFORMAT equ CCM_SETUNICODEFORMAT
+ENDIF
+
+Header_SetUnicodeFormat MACRO hwnd:REQ, fUnicode:REQ
+	invoke SendMessage, hwnd, HDM_SETUNICODEFORMAT, fUnicode, 0
+ENDM
