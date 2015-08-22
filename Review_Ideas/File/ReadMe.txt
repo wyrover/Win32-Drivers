@@ -14,4 +14,4 @@ Remember a truth that, when you want to make a path global,
   
   
   Maybe other reasons, various reasons, I mark it an uncertain item.
-      It is supposed to sovle this matter later.
+      It is supposed to sovle later.
