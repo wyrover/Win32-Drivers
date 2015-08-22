@@ -9,6 +9,7 @@
 //    10:24 PM, Aug 22, 2015, by Mighten Dai <mighten.dai@gmail.com>\
 //        Original Author: Zhang Fan, wrote it in Nov 01, 2007
 //
+#include "Driver.h"
 
 typedef struct _MYDATASTRUCT 
 {
