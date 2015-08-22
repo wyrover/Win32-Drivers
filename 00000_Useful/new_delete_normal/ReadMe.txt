@@ -1,9 +1,10 @@
-# new_delete_normal
+# new / delete normal version
 
-Overload the operator new/delete in the C++ coded Win32 Driver
+Two versions of allocation
+> Paged
+> NonPaged
 
->>>>>>>>>>>>>>   Caution    <<<<<<<<<<<<<<<<<<<<<
-1. The Operator Overloading features can only be enable in C++.
-2. To avoid mistake, you ought to use: "new/delete"  rather than "new/delete [] ".
-3. If it frequently applies an fixed-size memory location, this would be not suitable.
-      "new_delete_lookaside.hxx", the generic one will give you help.
+Note that, according to Windows NT's common sense,
+if IRQL bigger than and equal to DISPATHCH_LEVEL,
+    we can only use NonPagedPool,
+  or causes BSOD( Blue Screen Of Death )
