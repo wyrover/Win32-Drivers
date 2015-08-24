@@ -8,7 +8,9 @@
 //
 #include "Driver.h"
 
-#pragma INITCODE
+#pragma  PAGEDCODE
+wchar_t  dev_name[] = L"\\Device\\MyDDKDevice";
+wchar_t  sym_name[] = L"\\??\\HelloDDK";
 
 ////////////////////////////////////////////////////////////////////////////
 //        Name:   DriverEntry
@@ -19,6 +21,7 @@
 //      Return: Driver's status.
 //  *** NOTE that: Without extern "C", the compiler would trigger an LINK-time error.
 ////////////////////////////////////////////////////////////////////////////
+#pragma INITCODE
 extern "C" NTSTATUS DriverEntry (
             IN PDRIVER_OBJECT pDriverObject,
             IN PUNICODE_STRING pRegistryPath    ) 
@@ -57,7 +60,7 @@ NTSTATUS CreateDevice (
     
     // Get prepared for creating --using Unicode String.
     UNICODE_STRING devName;
-    RtlInitUnicodeString(&devName,L"\\Device\\MyDDKDevice");
+    RtlInitUnicodeString(&devName, dev_name );
     
     status = IoCreateDevice( pDriverObject,
                         sizeof(DEVICE_EXTENSION),
@@ -76,7 +79,7 @@ NTSTATUS CreateDevice (
 
     // Symbolic link.
     UNICODE_STRING symLinkName;
-    RtlInitUnicodeString(&symLinkName,L"\\??\\HelloDDK");
+    RtlInitUnicodeString(&symLinkName, sym_name );
     pDevExt->ustrSymLinkName = symLinkName;
     status = IoCreateSymbolicLink( &symLinkName,&devName );
 

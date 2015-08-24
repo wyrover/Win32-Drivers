@@ -18,6 +18,10 @@ typedef struct _MYDATASTRUCT
 } MYDATASTRUCT, *PMYDATASTRUCT;
 
 
+#pragma  PAGEDCODE
+const wchar_t  dev_name[] = L"\\Device\\MyDDKDevice";
+const wchar_t  sym_name[] = L"\\??\\HelloDDK";
+
 VOID LookasideTest() 
 {
     PAGED_LOOKASIDE_LIST     pageList;
@@ -36,7 +40,7 @@ VOID LookasideTest()
     }
 
     // simulate Frequently recycling
-    for (i=0;i<ARRAY_NUMBER;i++)
+    for (int i=0; i<ARRAY_NUMBER; i++ )
     {
         ExFreeToPagedLookasideList(&pageList,MyObjectArray[i]);
         MyObjectArray[i] = NULL;
@@ -82,7 +86,7 @@ NTSTATUS CreateDevice (
     PDEVICE_EXTENSION pDevExt;
     
     UNICODE_STRING devName;
-    RtlInitUnicodeString(&devName,L"\\Device\\MyDDKDevice");
+    RtlInitUnicodeString(&devName, dev_name );
     
     status = IoCreateDevice( pDriverObject,
                         sizeof(DEVICE_EXTENSION),
@@ -99,7 +103,7 @@ NTSTATUS CreateDevice (
     pDevExt->ustrDeviceName = devName;
 
     UNICODE_STRING symLinkName;
-    RtlInitUnicodeString(&symLinkName,L"\\??\\HelloDDK");
+    RtlInitUnicodeString(&symLinkName, sym_name );
     pDevExt->ustrSymLinkName = symLinkName;
     status = IoCreateSymbolicLink( &symLinkName,&devName );
     if (!NT_SUCCESS(status)) 

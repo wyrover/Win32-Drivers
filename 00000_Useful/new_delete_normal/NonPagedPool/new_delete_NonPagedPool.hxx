@@ -18,12 +18,14 @@
 #define   MACRO_PROTECTION__INCLUDE__NEW_DELETE_NON_PAGED_POOL_HXX__
 
 //////////////////////////////////////////////////////////////////////////////
+#pragma  code_seg("PAGE")
 void * (__cdecl)    operator new(   size_t size,    POOL_TYPE PoolType=PagedPool )
 {
 	return ExAllocatePool( NonPagedPool, size );
 }
 
 //////////////////////////////////////////////////////////////////////////////
+#pragma  code_seg("PAGE")
 void (__cdecl) operator delete(void* pointer)
 {
 	ExFreePool( pointer );

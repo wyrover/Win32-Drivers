@@ -15,9 +15,9 @@ Let us look at the reality --  Windows NT-based Operating system.
 
 
 # !!! Remember !!!
-    The Device/Symbolic Name represented by UNICODE_STRING type variable,
-               the characters inside it must remain in PAGEDCODE rather than INITCODE memory,
-                    or might cause BSOD while unloading the driver. 
+The Device/Symbolic Name represented by UNICODE_STRING type variable,
+ the characters inside it must remain in PAGEDCODE rather than INITCODE memory,
+ or might cause BSOD while unloading the driver. 
 
 # >>> FAQ <<<
 - Why I uses the Win32 Driver instead of Win32 App ?

@@ -14,6 +14,7 @@
 #ifndef    MACRO_PROTECTION__INCLUDE__Downcase_Unicode_String_h__
 #define    MACRO_PROTECTION__INCLUDE__Downcase_Unicode_String_h__
 
+#pragma  code_seg("PAGE")
 NTSTATUS    DowncaseUnicodeString( PUNICODE_STRING pDes, PUNICODE_STRING pSrc )
 {
     int       index = 0;

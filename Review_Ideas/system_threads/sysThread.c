@@ -12,6 +12,7 @@ static	KEVENT	s_event;
 //////////////////////////////////////////////////
 //		The module to make Sleep in Kernel easier.
 //////////////////////////////////////////////////
+#pragma   code_seg("PAGE")
 VOID	MySleep( LONG msec )
 {
 #define		DELAY_ONE_MICROSECOND	(-10)
@@ -27,7 +28,7 @@ VOID	MySleep( LONG msec )
 	KeDelayExecutionThread( KernelMode, 0, &My_int );
 }
 
-
+#pragma   code_seg("PAGE")
 VOID MyThread( IN PVOID pContext )
 {
 	PEPROCESS	EPROCESSPROTECT;
@@ -65,12 +66,12 @@ VOID MyThread( IN PVOID pContext )
 	PsTerminateSystemThread(0);
 }
 
-
+#pragma code_seg("INIT")
 VOID Unload(IN PDRIVER_OBJECT DriverObject)
 {
 }
 
-
+#pragma code_seg("INIT")
 NTSTATUS DriverEntry( IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING RegistryPath )
 {
 	// Definition.

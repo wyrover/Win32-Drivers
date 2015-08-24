@@ -7,6 +7,11 @@
 */
 #include <ntddk.h>
 
+#pragma  code_seg("PAGE")
+wchar_t  dev_name[] = L"\\Device\\MyDDKDevice";
+wchar_t  sym_name[] = L"\\??\\MyDDKSymbolName";
+
+#pragma       code_seg("INIT")
 VOID Unload(IN PDRIVER_OBJECT DriverObject)
 {
 	// Definition.
@@ -16,7 +21,7 @@ VOID Unload(IN PDRIVER_OBJECT DriverObject)
 	PDEVICE_OBJECT		pDeviceObjectTemp2 = NULL;
 	
 	// Initialization.
-	RtlInitUnicodeString( &usSymbolicLinkName, L"\\??\\MyDDKSymbolName");
+	RtlInitUnicodeString( &usSymbolicLinkName, sym_name );
 
 	KdPrint(( "[Unload]: Unloading SymbolicLink."));
 
@@ -52,6 +57,7 @@ VOID Unload(IN PDRIVER_OBJECT DriverObject)
 	return ;
 }
 
+#pragma    code_seg("INIT")
 NTSTATUS DriverEntry( IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING RegistryPath )
 {
 	// Definition.
@@ -62,8 +68,8 @@ NTSTATUS DriverEntry( IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING Registr
 	
 	// Initialization.
 	DriverObject->DriverUnload = Unload;
-	RtlInitUnicodeString( &usSymbolicLinkName, L"\\??\\MyDDKSymbolName");
-	RtlInitUnicodeString( &usDeviceName,       L"\\Device\\MyDDKDevice");
+	RtlInitUnicodeString( &usSymbolicLinkName, sym_name );
+	RtlInitUnicodeString( &usDeviceName,       dev_name );
 
 	// IoCreateDevice
 	ntStatus = IoCreateDevice(

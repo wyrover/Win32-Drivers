@@ -11,6 +11,7 @@
 #ifndef   MACRO_PROTECTION__INCLUDE__GetNameOfIRP_H__
 #define   MACRO_PROTECTION__INCLUDE__GetNameOfIRP_H__
 
+#pragma  code_seg("PAGE")
 char   *GetNameOfIRP( ULONG type )
 {
     static char* IRP[] = 
