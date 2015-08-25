@@ -257,7 +257,8 @@ VOID HelloDDKUnload ( IN PDRIVER_OBJECT pDriverObject )
 
 	while (pNextObj != NULL) 
 	{
-		PDEVICE_EXTENSION pDevExt = (PDEVICE_EXTENSION) pNextObj->DeviceExtension;
+		UNICODE_STRING       pLinkName = pDevExt->ustrSymLinkName;
+		PDEVICE_EXTENSION    pDevExt = (PDEVICE_EXTENSION) pNextObj->DeviceExtension;
 
 		if ( pDevExt->buffer )
 		{
@@ -265,7 +266,6 @@ VOID HelloDDKUnload ( IN PDRIVER_OBJECT pDriverObject )
 			pDevExt->buffer = NULL;
 		}
 
-		UNICODE_STRING pLinkName = pDevExt->ustrSymLinkName;
 		IoDeleteSymbolicLink(&pLinkName);
 		pNextObj = pNextObj->NextDevice;
 		IoDeleteDevice( pDevExt->pDevice );

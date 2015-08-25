@@ -105,10 +105,15 @@ VOID HelloDDKUnload ( IN PDRIVER_OBJECT pDriverObject)
     pNextObj = pDriverObject->DeviceObject;
     while (pNextObj != NULL) 
     {
-        PDEVICE_EXTENSION pDevExt = (PDEVICE_EXTENSION)
-            pNextObj->DeviceExtension;
+		UNICODE_STRING       pLinkName = pDevExt->ustrSymLinkName;
+        PDEVICE_EXTENSION    pDevExt = (PDEVICE_EXTENSION)pNextObj->DeviceExtension;
 
-        UNICODE_STRING pLinkName = pDevExt->ustrSymLinkName;
+		if ( pDevExt->buffer )
+		{
+			ExFreePool( pDevExt->buffer );
+			pDevExt->buffer = NULL;
+		}
+
         IoDeleteSymbolicLink(&pLinkName);
         pNextObj = pNextObj->NextDevice;
         IoDeleteDevice( pDevExt->pDevice );
