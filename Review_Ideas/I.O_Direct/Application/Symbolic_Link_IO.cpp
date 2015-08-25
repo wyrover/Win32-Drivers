@@ -30,7 +30,7 @@ int   do_read_device( )
 		return -1;
 	}
 
-	printf( "\n\n   Read file, by buffer address = 0x%X, length = 0xA\n", buffer );
+	printf( "\n\n   Read file, by buffer address = 0x%08X, length = 0xA\n", buffer );
 	bRet = ReadFile( hDevice, buffer, 10, &ulOperated, NULL );
 
 	if (bRet)
@@ -72,7 +72,7 @@ int    do_write_device()
 		return -1;
 	}
 
-	printf( "\n\n   Write file,   buffer address = 0x%X, length = 0xA\n", buffer );
+	printf( "\n\n   Write file,   buffer address = 0x%08X, length = 0xA\n", buffer );
 	memset( buffer, 0xBB, 10 );
 	bRet = WriteFile( hDevice, buffer, 10, &ulOperated, NULL);
 
