@@ -112,13 +112,21 @@ NTSTATUS HelloDDKWrite(IN PDEVICE_OBJECT pDevObj,
     ULONG mdl_length  = MmGetMdlByteCount(pIrp->MdlAddress);
     PVOID mdl_address = MmGetMdlVirtualAddress(pIrp->MdlAddress);
     ULONG mdl_offset  = MmGetMdlByteOffset(pIrp->MdlAddress);
-
-	char    *pBuffer = (char *) mdl_address;
+	
+	// Get the Map of MDL in Kernel Mode by using   MmGetSystemAddressForMdlSafe
+    PVOID   kernel_address = MmGetSystemAddressForMdlSafe( pIrp->MdlAddress, NormalPagePriority ); 
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//   !!! Caution !!!
+	//   Even if it is the same effect with mdl_address ops,
+	//     considering the the whole system's safety & stability, please use "MmGetSystemAddressForMdlSafe" additionally,
+	//           rather than only use "MmGetMdlVirtualAddress" alone.
+	//
+	char    *pBuffer = (char *) kernel_address;
 
     KdPrint(("\t%s\n", GetNameOfIRP(stack->MajorFunction) ));
     KdPrint(("Enter HelloDDKWrite\n"));
     KdPrint(("ulWriteLength:%d\n",ulWriteLength));
-
     KdPrint(("mdl_address:0x%08X\n",mdl_address));
     KdPrint(("mdl_length:%d\n",mdl_length));
     KdPrint(("mdl_offset:%d\n",mdl_offset));
@@ -130,8 +138,9 @@ NTSTATUS HelloDDKWrite(IN PDEVICE_OBJECT pDevObj,
         status = STATUS_UNSUCCESSFUL;
     }
 
-    // Get the Map of MDL in Kernel Mode by using   MmGetSystemAddressForMdlSafe
-    PVOID   kernel_address = MmGetSystemAddressForMdlSafe( pIrp->MdlAddress, NormalPagePriority );
+	////////////////////////////////////////////////////////////////////////////////
+	//     ----->  Hidden Bug
+	//  Better to use    "kernel_address"   rather than use      "mdl_address"
     KdPrint(("kernel_address:0x%08X\n",kernel_address));
 
     ///////////////////////////////////////////////////////////
