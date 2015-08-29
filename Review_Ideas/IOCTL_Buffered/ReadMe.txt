@@ -1,3 +1,3 @@
-# I/O Neither
+# IOCTL Buffered
 
-Neither Direct IO nor Buffered IO.
+Buffered I/O Control
