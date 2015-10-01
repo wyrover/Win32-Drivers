@@ -68,6 +68,55 @@ char   *GetNameOfIRP( ULONG type )
     return IRP[type];
 }
 
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//                            D e b u g    C o d e s    (Begin)                  // 
+///////////////////////////////////////////////////////////////////////////////////
+#pragma    PAGEDCODE
+//////////////////////////////////////////////
+//    Function name:     do_dump_buffer
+//    Parameter(s):      (unsigned char *)pBuffer, unsigned int length
+//    return value:      0 indicate normally done. Otherwise abnormal.
+int    do_dump_buffer(  unsigned char *pBuffer, unsigned int length )
+{
+	unsigned int    index;
+	
+	KdPrint(("Now dumping buffer with the given length as the byte order low to high.\n"));
+	
+	for ( index = 0; index < length; ++index )
+	{
+		KdPrint(("%02d indicate ----> 0x%02X", index, pBuffer[index] ));
+	}
+	
+	return 0;
+}
+
+//////////////////////////////////////////////
+//    Function name:     do_fill_buffer
+//    Parameter(s):      (unsigned char *)pBuffer
+//    return value:      0 indicate normally done. Otherwise abnormal.
+int    do_fill_buffer(  unsigned char *pBuffer, unsigned int length )
+{
+	unsigned char model = 0x22;
+	unsigned char  *p_target_char = (unsigned char *) pBuffer;
+	
+    for (unsigned int index = 0; index < length; ++index )
+	{
+		p_target_char[index] = model++;
+	}
+	return 0;
+}
+///////////////////////////////////////////////////////////////////////////////////
+//                            D e b u g    C o d e s    (End)                    // 
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////
 //        Name:   HelloDDKDeviceIOControl
 // Description:  Callee, controlled by Win32 DeviceIOControl
@@ -94,33 +143,15 @@ NTSTATUS   HelloDDKDeviceIOControl(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)
         case READ_MSR_REGISTER:
         {   //////////////////////////////////////////
             //     buffer manipulation.
-            __asm
-			{
-				push	ecx
-				push	eax
-				push	edx
-
-				int		0x3
-				mov		ecx, [InputBuffer]
-				int		0x3
-				mov		eax, [ecx]
-				int		0x3
-				mov		test_INDEX, eax
-
-				mov		ecx, [OutputBuffer]
-				mov		[ ecx ], 0x55aa55aa;//eax;
-				mov		[ecx+4], 0xaa55aa55;//edx;
-
-				pop		edx
-				pop		eax
-				pop		ecx
-			}
-
-			///////////////////////////////////////////
-            KdPrint(("-> MSR address or index = 0x%08X to be read.\n", test_INDEX ));
-            KdPrint(("-> MSR read: Low DWORD = 0x%08X\n", OutputBuffer[0]  ));
-            KdPrint(("->          High DWORD = 0x%08u\n", OutputBuffer[1]  ));
-
+			KdPrint(("Read Data.\n"));
+			do_dump_buffer( (unsigned char *)InputBuffer, buffer_length_in );
+			
+			KdPrint(("Write Data.\n"));
+			do_fill_buffer( (unsigned char *)OutputBuffer, buffer_length_out );
+			
+			KdPrint(("Test Data written.\n"));
+			do_dump_buffer( (unsigned char *)OutputBuffer, buffer_length_out );
+			
             pIrp->IoStatus.Information = buffer_length_out; // Bytes operated.
             break;
         }

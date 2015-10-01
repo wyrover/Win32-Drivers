@@ -13,10 +13,38 @@
 #include <stdio.h>
 #include <winioctl.h>
 
-#include "G_L_ErrorString.h" // convert Error ID of GetLastError to Error String.
-
 const wchar_t        sym_name[] = L"\\\\.\\HelloDDK";
 const unsigned long  READ_MSR_REGISTER  = CTL_CODE( FILE_DEVICE_UNKNOWN,  0x800, METHOD_BUFFERED,   FILE_ANY_ACCESS );
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//                            D e b u g    C o d e s    (Begin)                  // 
+///////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////
+//    Function name:     do_dump_buffer
+//    Parameter(s):      (void *)pBuffer, unsigned int length
+//    return value:      0 indicate normally done. Otherwise abnormal.
+int    do_dump_buffer(  unsigned char *pBuffer, unsigned int length )
+{
+	unsigned int    index;
+	
+	printf("Now dumping buffer with the given length as the byte order low to high.\n");
+	
+	for ( index = 0; index < length; ++index )
+	{
+		printf("%02d indicate ----> 0x%02X\n", index, pBuffer[index] );
+	}
+	
+	putchar('\n');
+
+	return 0;
+}
+///////////////////////////////////////////////////////////////////////////////////
+//                            D e b u g    C o d e s    (End)                    // 
+///////////////////////////////////////////////////////////////////////////////////
+
+
 
 int main()
 {
@@ -37,7 +65,6 @@ int main()
     {
 		DWORD        ErrorID = GetLastError();
         printf( "Failed to obtain file handle to SymbolicLink: %s with Win32 error code: %d\n", sym_name, ErrorID );
-		ShowErrorInfoMsgBox( ErrorID );
         getchar();
         getchar();
         return -1;
@@ -47,7 +74,15 @@ int main()
     // Set the input buffer to be ready for interaction with Driver
 	printf("Please input an index of MSR:" );
     scanf( "%d", &dwMsrAddress );
+	printf("  Your input after being translated into HEX is 0x%X\n\n", dwMsrAddress );
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    //                            D e b u g    C o d e s
+	printf("Before interact with Driver...\n");
+	do_dump_buffer( (unsigned char *)&dwMsrAddress, 4 );
+    //                            D e b u g    C o d e s
+    ///////////////////////////////////////////////////////////////////////////////////
+	
     ulStatus = DeviceIoControl( hDevice, READ_MSR_REGISTER,
                                 &dwMsrAddress, 4, // Input  buffer and length
                                 OutputBuffer,  8, // Output buffer and length
@@ -56,7 +91,6 @@ int main()
     {
 		DWORD   ErrorID = GetLastError();
         printf("Device I/O failed, error ID = 0x%08X.\n", ErrorID );
-		ShowErrorInfoMsgBox( ErrorID );
         getchar();
         getchar();
 		return  -2;
@@ -66,17 +100,23 @@ int main()
     {
 		DWORD   ErrorID = GetLastError();
         printf("Error: Read 0 bytes, error ID = 0x%08X.\n", ErrorID );
-		ShowErrorInfoMsgBox( ErrorID );
         getchar();
         getchar();
 		return -3;
     }
 
+	///////////////////////////////////////////////////////////////////////////////////
+    //                            D e b u g    C o d e s
+	printf("After interact with Driver...\n");
+	do_dump_buffer( (unsigned char *)&OutputBuffer[0], 8 );
+    //                            D e b u g    C o d e s
+    ///////////////////////////////////////////////////////////////////////////////////
+
 	/////////////////////////////////////////
-    //    here is the data showing
-    printf("The arrival of data from MSR address 0x%08X.\n", dwMsrAddress );
-	printf("            High DWORD = 0x%08X\n", OutputBuffer[0] );
-	printf("            Low  DWORD = 0x%08X\n", OutputBuffer[1] );
+//  //  here is the data showing
+//  //  printf("The arrival of data from MSR address 0x%08X.\n", dwMsrAddress );
+//	printf("            High DWORD = 0x%08X\n", OutputBuffer[0] );
+//	printf("            Low  DWORD = 0x%08X\n", OutputBuffer[1] );
 
     ////////////////////////////////////////
     CloseHandle( hDevice );
