@@ -4,6 +4,17 @@ Ready for having access to the whole look of the CPU
     by querying Model Specific Register.
 
 
+------------------------------------------------------------
+@ Version 2.0 
+
+Compared with the preceding version,
+     this commitment is very close to the final distribution
+
+And the program hopefully cannot be published until the end of 2015.
+           I have to finish my homework...
+
+What's more, This test version is finished at 01:43 PM, Oct 02, 2015, by Mighten Dai.
+
 
 ------------------------------------------------------------
 @ Version 1.0 
@@ -19,13 +30,3 @@ This test version is finished at 09:31 PM, Oct 01, 2015, by Mighten Dai.
 
 See history on GitHub for more detailed information.
 
-------------------------------------------------------------
-@ Version 2.0 
-
-Compared with the preceding version,
-     this commitment is very close to the final distribution
-
-And the program hopefully cannot be published until the end of 2015.
-           I have to finish my homework...
-
-What's more, This test version is finished at 01:43 PM, Oct 02, 2015, by Mighten Dai.
