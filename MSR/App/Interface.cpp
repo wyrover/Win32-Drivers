@@ -74,7 +74,7 @@ int main()
     // Set the input buffer to be ready for interaction with Driver
 	printf("Please input an index of MSR:" );
     scanf( "%d", &dwMsrAddress );
-	printf("  Your input after being translated into HEX is 0x%X\n\n", dwMsrAddress );
+	printf("  Your input after being translated into HEX is 0x%.04X\n\n", dwMsrAddress );
 
     ///////////////////////////////////////////////////////////////////////////////////
     //                            D e b u g    C o d e s
@@ -113,10 +113,10 @@ int main()
     ///////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////
-//  //  here is the data showing
-//  //  printf("The arrival of data from MSR address 0x%08X.\n", dwMsrAddress );
-//	printf("            High DWORD = 0x%08X\n", OutputBuffer[0] );
-//	printf("            Low  DWORD = 0x%08X\n", OutputBuffer[1] );
+    //  here is the data showing
+    //  printf("The arrival of data from MSR address 0x%04X.\n", dwMsrAddress );
+	printf("            High DWORD = 0x%08X\n", OutputBuffer[1] );
+	printf("            Low  DWORD = 0x%08X\n", OutputBuffer[0] );
 
     ////////////////////////////////////////
     CloseHandle( hDevice );

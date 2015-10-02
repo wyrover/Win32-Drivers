@@ -70,53 +70,6 @@ char   *GetNameOfIRP( ULONG type )
 
 
 
-
-
-
-///////////////////////////////////////////////////////////////////////////////////
-//                            D e b u g    C o d e s    (Begin)                  // 
-///////////////////////////////////////////////////////////////////////////////////
-#pragma    PAGEDCODE
-//////////////////////////////////////////////
-//    Function name:     do_dump_buffer
-//    Parameter(s):      (unsigned char *)pBuffer, unsigned int length
-//    return value:      0 indicate normally done. Otherwise abnormal.
-int    do_dump_buffer(  unsigned char *pBuffer, unsigned int length )
-{
-	unsigned int    index;
-	
-	KdPrint(("Now dumping buffer with the given length as the byte order low to high.\n"));
-	
-	for ( index = 0; index < length; ++index )
-	{
-		KdPrint(("%02d indicate ----> 0x%02X", index, pBuffer[index] ));
-	}
-	
-	return 0;
-}
-
-//////////////////////////////////////////////
-//    Function name:     do_fill_buffer
-//    Parameter(s):      (unsigned char *)pBuffer
-//    return value:      0 indicate normally done. Otherwise abnormal.
-int    do_fill_buffer(  unsigned char *pBuffer, unsigned int length )
-{
-	unsigned char model = 0x22;
-	unsigned char  *p_target_char = (unsigned char *) pBuffer;
-	
-    for (unsigned int index = 0; index < length; ++index )
-	{
-		p_target_char[index] = model++;
-	}
-	return 0;
-}
-///////////////////////////////////////////////////////////////////////////////////
-//                            D e b u g    C o d e s    (End)                    // 
-///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////
 //        Name:   HelloDDKDeviceIOControl
 // Description:  Callee, controlled by Win32 DeviceIOControl
@@ -143,15 +96,61 @@ NTSTATUS   HelloDDKDeviceIOControl(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)
         case READ_MSR_REGISTER:
         {   //////////////////////////////////////////
             //     buffer manipulation.
-			KdPrint(("Read Data.\n"));
-			do_dump_buffer( (unsigned char *)InputBuffer, buffer_length_in );
-			
-			KdPrint(("Write Data.\n"));
-			do_fill_buffer( (unsigned char *)OutputBuffer, buffer_length_out );
-			
+			KdPrint(("Test Data read: 0x%04X\n", *InputBuffer ));
+
+			//   This is to test the specific data to be written into buffer.
+			KdPrint(("Writing Data.\n"));
+			__asm
+			{
+				push    eax
+				push    edx
+				push    ecx
+				push    esi
+				push    edi
+
+				;;//  Now load the MSR Index into ECX
+				lea     eax, InputBuffer
+				mov     esi, [eax]
+				mov     ecx, [esi]    ;;// ECX now is the MSR address(index) to be read.
+
+				;;//  Now set the Output buffer address as the destination to be read.
+				lea     eax, OutputBuffer
+				mov     edi, [eax]    ;;// EDI now refer to the buffer's head 
+				
+				;;//////////////////////////////////////////
+				;;//
+				;;//     ! ! !   D a n g e r o u s  ! ! ! 
+				;;//
+				;;//         if remove the commentary mark on "rdmsr" without test.
+				;;//
+				;;//  It is time to RDMSR(ReaD MSR)
+				;;//      rdmsr    
+				
+				
+				;;//////////////////////////////////////////
+				;;//
+				;;//    T e m p o r a r y   t e s t .
+				;;//
+				;;//////////////////////////////////////////
+				;;//  simulating return value of RDMSR
+				mov    edx, 0x88776655
+				mov    eax, 0x44332211
+
+				;;//  Return value store into EDX:EAX
+				mov    [ edi     ], eax
+				mov    [ edi + 4 ], edx
+
+				pop     edi
+				pop     esi
+				pop     ecx
+				pop     edx
+				pop     eax
+			}
+
 			KdPrint(("Test Data written.\n"));
-			do_dump_buffer( (unsigned char *)OutputBuffer, buffer_length_out );
-			
+			KdPrint(("      High DWORD = 0x%08X\n", OutputBuffer[1] ));
+			KdPrint(("      Low  DWORD = 0x%08X\n", OutputBuffer[0] ));
+
             pIrp->IoStatus.Information = buffer_length_out; // Bytes operated.
             break;
         }
@@ -162,6 +161,16 @@ NTSTATUS   HelloDDKDeviceIOControl(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)
     IoCompleteRequest( pIrp, IO_NO_INCREMENT );
     return status;
 }
+
+
+
+
+
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 //        Name:   HelloDDKUnload
